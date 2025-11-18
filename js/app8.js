@@ -215,3 +215,37 @@ function activarDragAndDrop() {
         leerDatosCurso(cursoSeleccionado)
     })
 }
+
+function activarDragAndDrop() {
+
+    document.querySelectorAll('.card').forEach(card => {
+        card.setAttribute('draggable', 'true');
+
+        card.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('curso-id', card.querySelector('a').getAttribute('data-id'));
+        });
+    });
+
+    zonaDrop.addEventListener('dragover', e => {
+        e.preventDefault();
+        zonaDrop.classList.add('over'); // feedback visual al pasar encima
+    });
+
+    zonaDrop.addEventListener('dragleave', () => {
+        zonaDrop.classList.remove('over'); // quitar feedback si se sale
+    });
+
+    zonaDrop.addEventListener('drop', e => {
+        e.preventDefault();
+        zonaDrop.classList.remove('over');
+
+        const id = e.dataTransfer.getData('curso-id');
+        const cursoSeleccionado = document.querySelector(`.card a[data-id="${id}"]`).parentElement.parentElement;
+
+        leerDatosCurso(cursoSeleccionado);
+
+        // Animación de rebote al soltar
+        zonaDrop.classList.add('rebote');
+        setTimeout(() => zonaDrop.classList.remove('rebote'), 400);
+    });
+}
