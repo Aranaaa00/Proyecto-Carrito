@@ -7,6 +7,9 @@ const vaciarCarritoBtn = document.querySelector('#vaciar-carrito')
 const listaCursos = document.querySelector('#lista-cursos')
 let articulosCarrito = []
 
+// Campos del formulario de búsqueda  
+const formularioBusqueda = document.querySelector('#busqueda')
+const inputBusqueda = document.querySelector('#buscador')
 
 //  *** Listeners *** 
 cargarEventListeners()
@@ -18,7 +21,10 @@ function cargarEventListeners () {
     vaciarCarritoBtn.addEventListener('click', () => {
         articulosCarrito = []   // Vaciamos el array
         limpiarHTML()           // Limpiamos el HTML
+        localStorage.removeItem('carrito')
     })
+
+    formularioBusqueda.addEventListener('submit', validarBusqueda)
 
     // Al cargar el documento, cargamos el carrito desde localStorage
     document.addEventListener('DOMContentLoaded', () => {
@@ -30,6 +36,54 @@ function cargarEventListeners () {
 
 
 //  *** Funciones *** 
+
+// Función para validar el formulario de búsqueda
+function validarBusqueda(e) {
+    e.preventDefault()
+
+    const texto = inputBusqueda.value.trim()
+
+    // Campo vacío
+    if (texto === "") {
+        mostrarError("El campo de búsqueda no puede estar vacío")
+        return
+    }
+
+    // Longitud mínima
+    if (texto.length < 3) {
+        mostrarError("Escribe al menos 3 caracteres para buscar")
+        return
+    }
+
+    // Evitar código o XSS
+    const regexInvalido = /<script>|<\/script>|javascript:/i
+    if (regexInvalido.test(texto)) {
+        mostrarError("Se han detectado caracteres no permitidos")
+        inputBusqueda.value = ""
+        return
+    }
+
+    // Caracteres permitidos
+    const regexSeguro = /^[a-zA-Z0-9 áéíóúñÑ.-]+$/
+    if (!regexSeguro.test(texto)) {
+        mostrarError("Solo se permiten letras, números y signos básicos")
+        return
+    }
+
+    // Si llega aquí → búsqueda válida
+    console.log("🔎 Búsqueda válida:", texto)
+}
+
+// Función para mostrar errores visualmente
+function mostrarError(mensaje) {
+    const alerta = document.createElement("p")
+    alerta.textContent = mensaje
+    alerta.classList.add("error")
+
+    formularioBusqueda.appendChild(alerta)
+
+    setTimeout(() => alerta.remove(), 3000)
+}
 
 // Función para añadir cursos al carrito
 function añadirCurso(e) {
